@@ -1,0 +1,119 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{mathptmx}
+\usepackage{mathtools}
+\usepackage{amssymb}
+\usepackage[a4paper, total={6in, 8in}]{geometry}
+\usepackage{algorithmic}
+
+\title{Service Chain Embedding for Diversified 5G Slices With Virtual Network Function Sharing}
+\author{Manohar Reddy Mulle, Abhijith Pogiri, Harshal Gawai }
+
+\begin{document}
+
+\maketitle
+
+\begin{center}
+    \textbf{\large {Abstract}}
+\end{center}
+ \par
+ We solve the problem of embedding a sequence of virtual network functions (VNF) for given flows, considering the fact that there will be different 5G slices. Our approach considers resource requirements like number of cores assigned to VNFs and limited processing capacity of VNFs, which can be shared or not among different 5G slices depending on their functionality. We implement an optimal solution to the problem such that it considers both bandwidth and computational resources and also minimizes the number of VNFs required at the same time. We also consider some constraints to implement the solution like Bandwidth constraints, processing constraints, flow constraints, VNF instantiation constraints.
+
+
+\section{Introduction}
+
+ In order to overcome the hurdles present in 4G and to meet diversified service requirements with a single physical network architecture, we are going to use a concept named, End-to-End network slicing (5G slices). An End-to-End slice serves a set of flows which belong to different end users who have same Quality of Service requirements. There will be a set of VNFs which serves a particular flow, forming a service chain. These VNFs process the data packets flowing between source and destination in a flow. According to the International Telecommunication Union, there are generally three classes of 5G slices: Enhanced Mobile Broadband (eMBB), Ultra-reliable and Low-latency Communications (URLLC), and Massive Machine Type Communications (mMTC). eMBB focuses on services requiring high bandwidth, such as high definition videos, URLLC focuses on latency-sensitive services, such as assisted and automated driving, and remote surgery. The mMTC slice focuses on services requiring high connection density such as smart city.\\
+ 
+ \par
+ The process of creating service chains include: (a) determining traffic paths, (b) reserving bandwidth on the links of the paths, (c) instantiating virtual machines (VMs) at different nodes on the paths, (d) installing VNFs on the instantiated VMs of selected physical nodes. Some VNFs can be shared among slices based on their  functionalities . For example, a network address translation (NAT) function can be shared among slices, whereas firewall cannot be shared because each slice may have different policies to guarantee security isolation. To minimize resources and number of VNFs, an efficient service chain embedding algorithm should use shareable VNFs to the most extent among different slices. Finding a shortest path between a source and destination is not enough for finding solution to our problem as there may exist an another path which uses shareable VNFs, thus reducing the number of VNFs required. So, there is a trade-off between minimizing number of VNFs and minimizing the computational resources.\\
+ 
+ \par
+ SCE problem can be viewed as several sub-problems: VNF placement, traffic routing and resource allocation in multiple slices co-located in a single physical infrastructure while considering the VNF sharing property. A flow is represented by its source and destination nodes, the slice it belongs to, packet rate, and the service chains that process the traffic packets. Two flows that belong to the same slice may use the same or different service chains. A VNF is defined by its sharing property, per-unit computational requirement and processing capacity. Given a set of flows, we aim at minimizing the computational resources at different physical nodes for VNFs of the service chains, bandwidth on the link to satisfy slices' requirements, and the routing path for each flow on the logical topology of the slice in order to improve resource efficiency.
+	
+\section{Abstract Solution}
+
+We construct an objective function that depends on the total bandwidth consumed and total number of VNFs used in the network. We keep on changing the weights of these terms (\(\alpha\) and \(1-\alpha\) respectively) such that their sum is one and find the optimal solution among all those. We have to satisfy certain constraints while finding the solution. They are: (a) VNF Instantiation Constraints, (b) Latency Constraints for URLLC slice, (c) Capacity Constraint for a Physical Node, (d) Processing Constraint for a VNF, (e) Bandwidth Constraints,
+(f) Flow Conservation Constraints of Physical Paths (g) VNF chaining constraints. After subjecting the objective function to these constraints, we will get the optimal solution for our problem.
+
+\section{Problem Formulation}
+
+We represent the physical network as \(G(V,E)\) where \(V\) is the set of physical nodes and \(E\) is the set of the physical edges. The computational resource capacity of node \(u \in V\) is represented as \(\ C_u\), and  \(\ \delta\)(u) represents the set of neighboring nodes of node \(u\). The total capacity of each link in the network is denoted as \(\mathbb{B}\). The residual bandwidth of an edge \(e\) is defined by \(B_e\). \(N_f\) denotes the set of VNFs. \(B_f\) represents the residual bandwidth of the flow \(f\). \(delay_e\) denotes the propagation delay of the corresponding edge. \(S(V_S, E_S)\) denotes a service chain, where \(\ V_S\) is the set of VNFs and \(\ E_S\) is the set of edges that connect the corresponding VNFs (virtual edges). Set of flows is defined by \(\mathbb{F}\). \(Active_{i,j}^u\) denotes whether VNF \(i\)'s \(j\)th instance is active or not in physical node \(u\). VNF \(i \in F\) has sharing property denoted by \(a_i \in \{0, 1\}\) and processing capacity \(P_i\). The maximum number of instances of VNF \(i\) that can be hosted in node \(u\) is limited by \(M_i^u\). \(P_{f,e_2}^{e_1}\) is a binary variable that denotes if physical edge \(e_1\) is serving virtual edge \(e_2\) in flow \(f\). \(Z_{f,i,j}^u\) represents whether VNF \(i\)'s \(j\)th instance is active or not in physical node \(u\) for flow \(f\). \(X_{f,i}^u\) denotes whether VNF \(i\) is present in physical node \(u\) or not for flow \(f\). \(\Delta_i\) is defined as the per-unit computational resource requirement of VNF \(i\). \(C_i\) represents computational resource required by the VNF \(i\). Any flow \(f\) is defined completely by its source, destination, bandwidth required, slice type and maximum delay. set of all virtual edges in a flow is denoted by \(E_f\). A traffic flow typically spans between usersâ devices and data centers, and traverses the links in the core networks. The packets of the flow will be processed by several VNFs, forming a service chain.
+
+\subsection{Objective Function}
+
+The objective of our problem is to minimize the amount of bandwidth and computational resources required for all slices. In the below equation, first term represents the total amount of bandwidth consumed in a network and the second term represents the number of VNFs required. We can minimize bandwidth by finding the shortest path between source and destination. But that does not necessarily minimize the number of VNFs required. Because there may exist an another path other than the shortest path which uses shareable VNFs, thus by reducing the number of VNFs required. So, there is a trade-off between these two terms. \(\alpha\) is a weighting parameter that represents the relative weight of bandwidth and computational resources. We normalize the two terms to make them belong to the same scale.\\
+\\
+Minimize: \[\frac{\alpha}{\mathbb{B}.|E|}\sum_{f\in \mathbb{F}}\sum_{e_1\in E}\sum_{e_2\in E_f} P_{f,e_2}^{e_1}.B_f + \frac{1-\alpha}{|N_f|.|V|}\sum_{u\in V}\sum_{i\in N_f}\sum_{j=1}^{j=M_i^u}active_{i,j}^u\]
+
+
+\subsection{Constraints}
+
+Many constraints need to be satisfied while computing the path and placement of VNFs for a given flow. Below, we describe each constraint in detail.
+\\
+\\
+\textbf{(a) VNF Instantiation Constraints:}
+
+
+ \[\forall{u\in V},\  \forall{i\in N_f},\ \forall{j\in \{1,...,M_i^u\}} \ \sum_{f\in \mathbb{F}}\  Z_{f,i,j}^u . (1-active_{i,j}^u) = 0\ .\ \ \ \ (1)\].
+ 
+ \[\forall{f \in \mathbb{F}},\ \forall{u\in V},\ \forall{i\in N_f}\ \sum_{j=1}^{j=M_i^u} \ Z_{f,i,j}^u = X_{f,i}^u\ .\ \ \ \ (2)\]
+ 
+ \[\forall{f \in \mathbb{F}},\ \forall{i\in N_f}\ \sum_{u\in V} \ X_{f,i}^u = 1\ .\ \ \ \ (3)\]
+ 
+ \[\forall{f \in \mathbb{F}},\ \forall{e_2 \in E_f} \ \sum_{u \in V}\sum_{v \in \delta(u)+u}\ P_{f,e_2}^{e_1}.X_{f,i}^u = 1\ .\ \ \ \ (4)\]
+ 
+ First constraint forms a link between \(Z_{f,i,j}^u\) and \(active_{i,j}^u\). When ever \(Z_{f,i,j}^u\) is one, This constraint makes sure that \(active_{i,j}^u\) is also one. This means if a flow \(f\) passes through physical node \(u\) and VNF \(i\)'s \(j\)th instance, then that VNF will be considered as active VNF. When \(Z_{f,i,j}^u\) is zero, that means flow \(f\) does not pass through the physical node \(u\) and VNF \(i\)'s \(j\)th instance. But there may exist an another flow \(f'\) with  \(Z_{f',i,j}^u\) is one, thus making \(active_{i,j}^u\) one. So, we can not put any constraint when  \(Z_{f,i,j}^u\) is zero. First equation clearly satisfies these requirements.
+
+Second constraint forms a link between \(Z_{f,i,j}^u\) and \(X_{f,i}^u\). It says that the sum of all instances of VNFs \(i\) in a node \(u\) for flow \(f\) is equal to \(X_{f,i}^u\). Thus, It is defining \(X_{f,i}^u\) to be the number of VNF instances of \(i\) are present in node \(u\) for flow \(f\).
+
+Third constraint constrains \(X_{f,i}^u\). It says that any VNF in the flow \(f\) should be present in a single physical node only.
+
+Fourth constraint forms a link between \(P_{f,e_2}^{e_1}\) and \(X_{f,i}^u\). It says that for any flow \(f\) and for any virtual edge in that flow \(e_2\), summation of \(P_{f,e_2}^{e_1}\) * \(X_{f,i}^u\) will be one over all physical edges (\(e_1\) is a physical edge). If a VNF \(i\) is present in a flow \(f\), there should be one outgoing edge and one incoming edge in its path.\\
+\\
+\textbf{(b) Latency Constraints for URLLC slice:}
+
+\[\forall{f \in \mathbb{F}}\ \sum_{e_2 \in E_f} \sum_{e_1\in E} \ P_{f,e_2}^{e_1}.delay_{e_1} \leq f.max delay\ .\ \ \ \ (1)\]
+
+These are the constraints that will be needed if some one requests for services which are of low latency. This forms a link between \(P_{f,e_2}^{e_1}\) and delay and flow \(f\)'s max delay. It says that summation of all delays in every physical edge that serves a virtual edge should be less than flow \(f\)'s max delay.\\
+\\
+\textbf{(c) Capacity Constraint for a Physical Node:}
+\[\forall{u\in V}\ \sum_{i \in N_f}\sum_{j=1}^{j=M_i^u} \ active_{i,j}^u.C_i \leq C_u\ .\ \ \ \ (1)\]
+
+It forms a link between \(active_{i,j}^u\), \(C_i\) and \(C_u\). It says that the computational resource of any node \(u\) must be sufficient for all the VNFs embedded in node \(u\) to process all the traffic flows traversing node \(u\).\\
+\\
+\textbf{(d) Processing Constraint for a VNF:}
+\[\forall{u\in V},\ \forall{i\in N_f},\ \forall{j\in \{1,...,M_i^u\}}\ \sum_{f \in \mathbb{F}} \ Z_{f,i,j}^u.\Delta_i.B_f \leq C_i\ .\ \ \ \ (1)\] 
+
+It forms a link between \(Z_{f,i,j}^u\), \(\Delta_i\) and flow \(f\)'s bandwidth and \(C_i\). It says that \(C_i\) is the maximum amount of data that can be processed by VNF \(i\) \(j\)th instance over all flows per unit time. We are adding this constraint so as to ensure that VNFs are not overloaded and the processing delay does not dominate the propagation delay.\\
+\\
+\textbf{(e) Bandwidth Constraints:}
+\[\forall{e_1\in E} \sum_{f \in \mathbb{F}} \sum_{e_2 \in E_f} \ P_{f,e_2}^{e_1}.B_f \leq B_{e_1}\ .\ \ \ \ (1)\]
+
+It forms a link between \(P_{f,e_2}^{e_1}\), flow \(f\)'s bandwidth and total bandwidth of the edge \(e_1\). It says that the residual bandwidth on the edge \(e_1\) must be sufficient to serve all the flows using it on the path.\\
+\\
+\textbf{(f) Flow Conservation Constraints of Physical Paths:}\\
+In the below equations, \(s\) is the source and \(d\) is destination for some flow. \((u,v)\) represents a physical edge from \(u\) to \(v\).
+\[\forall{f\in \mathbb{F}},\ \forall{u\in V\setminus \{s\}}\ \sum_{v \in \delta(u)} \sum_{e_2 \in E_f} \ P_{f,e_2}^{(u,v)}-P_{f,e_2}^{(v,u)}=0\ .\ \ \ \ (1)\]
+
+\[\forall{f\in \mathbb{F}}\ \sum_{v \in \delta(s)} \sum_{e_2 \in E_f} \ P_{f,e_2}^{(s,v)}-P_{f,e_2}^{(v,s)}=1\ .\ \ \ \ (2)\]
+
+\[\forall{f\in \mathbb{F}}\ \sum_{v \in \delta(d)} \sum_{e_2 \in E_f} \ P_{f,e_2}^{(d,v)}-P_{f,e_2}^{(v,d)}=-1\ .\ \ \ \ (3)\]
+
+It constrains on the number of edges entering and leaving a physical node \(u\) for flow \(f\). For every flow \(f\), if we consider the all physical edges that connect source to destination, the number of edges coming into a node should be equal to number of edges going out of that node except for source and destination. For the source latter is more by one and for the destination former is more by one.\\
+\\
+\textbf{(g) VNF chaining constraints:}\\
+In the first equation \(i\) is \(e_2\). In the second equation \(i\) is \(e_2+1\). In the third equation \(i\) is \(e_2\).
+
+\[\forall{f\in \mathbb{F}},\  \forall{u \in V},\  \forall{e_2 \in E_f},\ \forall{v \in \delta(u)}\ (P_{f,e_2}^{(u,v)}) \times (\sum_{w \in \delta(u)}\ P_{f,e_2}^{(w,u)} + X_{f,i}^u -1) = 0\ .\ \ \ \ (1)\]
+\[\forall{f\in \mathbb{F}},\  \forall{u \in V},\  \forall{e_2 \in E_f},\ \forall{v \in \delta(u)}\ (P_{f,e_2}^{(v,u)}) \times (\sum_{w \in \delta(u)}\ P_{f,e_2}^{(u,w)} + X_{f,i}^u -1) = 0\ .\ \ \ \ (2)\]
+
+
+\[\forall{f\in \mathbb{F}},\  \forall{u \in V},\  \forall{e_2 \in E_f}\ \sum{(P_{f,e_2}^{(u,u)})\times(X_{f,i}^u+X_{f,i+1}^u)-2} = 0\ .\ \ \ \ (3)\]
+
+The above three equations constrain the sequence of VNFs and preserve their order. First constraint says that for every flow \(f\), and for any physical edge serving a virtual edge, the physical edge should be met with another incoming physical edge serving the same virtual edge or virtual edge should originate from the corresponding physical edge.
+
+Second constraint says that for every flow \(f\), and for any physical edge serving a virtual edge, the physical edge should be met with another outgoing physical edge serving the same virtual edge or virtual edge should end at the corresponding physical edge.
+
+Third constraint says that for every flow \(f\), if virtual edge resides in a physical node, then there should be only single physical edge serving the virtual edge.  
+
+\end{document}
