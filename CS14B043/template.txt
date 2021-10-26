@@ -1,0 +1,16 @@
+alpha
+V
+B
+Esize
+NF
+asize
+nof
+tosc
+EdgeSet:u v bwl delay
+Cu: Cu[u]
+Ci: Ci[i] delta[i]
+a: a[i]
+M: M[i][u]
+flows: s d bw sc max_delay
+schains: vnfsize
+			vnfs: vnf[i]
